@@ -11,4 +11,6 @@ public interface GdmlExporter extends VolumeExporter
 	public void replaceAttribute( String aParentName,
 			String aSearchNode, String aSearchAttribute, String aSearchValue,
 			String aReplaceNode, String aReplaceAttribute, String aReplaceValue );
+	
+	public void replaceVolumeMaterial( String aVolName, String aMatRef );
 }
