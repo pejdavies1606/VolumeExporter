@@ -23,8 +23,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import org.jlab.detector.units.Measurement;
 import org.jlab.detector.units.SystemOfUnits.Length;
+import org.jlab.detector.volume.G4Box;
+import org.jlab.detector.volume.G4Tubs;
 import org.jlab.detector.volume.Geant4Basic;
 
 import eu.mihosoft.vrl.v3d.Vector3d;
@@ -35,7 +36,7 @@ import eu.mihosoft.vrl.v3d.Vector3d;
  * Writes a file in GDML format for a given Geant4Basic volume structure.
  * 
  * @author pdavies
- * @version 1.0.7
+ * @version 1.1.2
  */
 
 public class GdmlFile implements GdmlExporter
@@ -345,61 +346,45 @@ public class GdmlFile implements GdmlExporter
 		
 		// types defined here: http://gdml.web.cern.ch/GDML/doc/GDMLmanual.pdf
 		
-		List<Measurement> solParams = aSolid.getDimensions();
-		
 		switch( type )
 		{
 		case "box":
 			
-			if( solParams.size() == 1 ) // cube
-			{
-				solid.setAttribute("x", Double.toString( solParams.get(0).value ) );
-				solid.setAttribute("y", Double.toString( solParams.get(0).value ) );
-				solid.setAttribute("z", Double.toString( solParams.get(0).value ) );
-			}
-			else if( solParams.size() == 3 )// regular cuboid
-			{
-				solid.setAttribute("x", Double.toString( solParams.get(0).value ) );
-				solid.setAttribute("y", Double.toString( solParams.get(1).value ) );
-				solid.setAttribute("z", Double.toString( solParams.get(2).value ) );
-			}
-			else
-				throw new NullPointerException("incorrect number of parameters for type: \""+ type +"\"");
+			G4Box aSolidBox = (G4Box) aSolid; 
+			solid.setAttribute("x", Double.toString( aSolidBox.getXHalfLength()*2.0 ) );
+			solid.setAttribute("y", Double.toString( aSolidBox.getYHalfLength()*2.0 ) );
+			solid.setAttribute("z", Double.toString( aSolidBox.getZHalfLength()*2.0 ) );
 			break;
 			
-		case "eltube": // cylinder along Z axis
+		/*case "eltube": // cylinder along Z axis
 			
 			if( solParams.size() == 3 )
 			{
-				solid.setAttribute("dx", Double.toString( solParams.get(0).value ) );
-				solid.setAttribute("dy", Double.toString( solParams.get(1).value ) );
-				solid.setAttribute("dz", Double.toString( solParams.get(2).value ) );
+				solid.setAttribute("dx", Double.toString( solParams.get(0).value*2.0 ) );
+				solid.setAttribute("dy", Double.toString( solParams.get(1).value*2.0 ) );
+				solid.setAttribute("dz", Double.toString( solParams.get(2).value*2.0 ) );
 			}
 			else
 				throw new NullPointerException("incorrect number of parameters for type: \""+ type +"\"");
-			break;
+			break;*/
 			
-		case "orb": // sphere
+		/*case "orb": // sphere
 			
 			if( solParams.size() == 1 )
 				solid.setAttribute("r", Double.toString( solParams.get(0).value ));
 			else
 				throw new NullPointerException("incorrect number of parameters for type: \""+ type +"\"");
-			break;
+			break;*/
 			
 		case "tube": // hollow tube segment
 			
-			if( solParams.size() == 5 )
-			{
-				solid.setAttribute("rmin", 	   Double.toString( solParams.get(0).value ) );
-				solid.setAttribute("rmax", 	   Double.toString( solParams.get(1).value ) );
-				solid.setAttribute("z",        Double.toString( solParams.get(2).value ) );
-				solid.setAttribute("startphi", Double.toString( solParams.get(3).value ) );
-				solid.setAttribute("deltaphi", Double.toString( solParams.get(4).value ) );
-				solid.setAttribute("aunit", mDesiredAngleUnit );
-			}
-			else
-				throw new NullPointerException("incorrect number of parameters for type: \""+ type +"\"");
+			G4Tubs aSolidTubs = (G4Tubs) aSolid;
+			solid.setAttribute("rmin", 	   Double.toString( aSolidTubs.getRMin() ) );
+			solid.setAttribute("rmax", 	   Double.toString( aSolidTubs.getRMax() ) );
+			solid.setAttribute("z",        Double.toString( aSolidTubs.getZHalfLength()*2.0 ) );
+			solid.setAttribute("startphi", Double.toString( aSolidTubs.getPhiStart() ) );
+			solid.setAttribute("deltaphi", Double.toString( aSolidTubs.getPhiDelta() ) );
+			solid.setAttribute("aunit", mDesiredAngleUnit );
 			break;
 			
 		/*case "polyhedra": // pgon
